@@ -375,7 +375,7 @@ std::string make_b3dm(std::vector<Polygon_Mesh>& meshes);
 //
 extern "C" bool shp23dtile(
     const char* filename, int layer_id, 
-    const char* dest, const char* height)
+    const char* dest, const char* height, double rate)
 {
     if (!filename || layer_id < 0 || layer_id > 10000 || !dest) {
         LOG_E("make shp23dtile [%s] failed", filename);
@@ -489,6 +489,7 @@ extern "C" bool shp23dtile(
             double height = 50.0;
             if( field_index >= 0 ) {
                 height = poFeature->GetFieldAsDouble(field_index);
+                height *= rate;
             }
             if (height > max_height) {
                 max_height = height;

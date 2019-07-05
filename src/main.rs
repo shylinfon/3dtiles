@@ -100,6 +100,12 @@ fn main() {
                 .takes_value(true),
         )
         .arg(
+            Arg::with_name("rate")
+                .long("rate")
+                .help("Set the rate of height")
+                .takes_value(true),
+        )
+        .arg(
             Arg::with_name("verbose")
                 .short("v")
                 .long("verbose")
@@ -113,6 +119,8 @@ fn main() {
     let format = matches.value_of("format").unwrap();
     let tile_config = matches.value_of("config").unwrap_or("");
     let height_field = matches.value_of("height").unwrap_or("");
+    let rate_str = matches.value_of("rate").unwrap_or("1.0");
+    let rate = rate_str.parse::<f64>().unwrap();
 
     if matches.is_present("verbose") {
         info!("set program versose on");
@@ -127,7 +135,7 @@ fn main() {
             convert_osgb(input, output, tile_config);
         }
         "shape" => {
-            convert_shapefile(input, output, height_field);
+            convert_shapefile(input, output, height_field, rate);
         }
         "gltf" => {
             convert_gltf(input, output);
@@ -340,14 +348,14 @@ fn convert_osgb(src: &str, dest: &str, config: &str) {
     info!("task over, cost {:.2} s.", tick_num);
 }
 
-fn convert_shapefile(src: &str, dest: &str, height: &str) {
+fn convert_shapefile(src: &str, dest: &str, height: &str, rate: f64) {
     if height.is_empty() {
         error!("you must set the height field by --height xxx");
         return
     }
     let tick = std::time::SystemTime::now();
 
-    let ret = shape::shape_batch_convert(src, dest, height);
+    let ret = shape::shape_batch_convert(src, dest, height, rate);
     if !ret {
         error!("convert shapefile failed");
     }
